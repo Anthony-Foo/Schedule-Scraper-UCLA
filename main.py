@@ -2,10 +2,11 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from time import sleep
 
-# options = webdriver.ChromeOptions()
-# options.add_argument('--headless')
-# driver = webdriver.Chrome(options=options)
-driver = webdriver.Chrome()
+
+options = webdriver.ChromeOptions()
+options.add_argument('--headless')
+driver = webdriver.Chrome(options=options)
+#driver = webdriver.Chrome()
 classDict = {}
 url = ("https://sa.ucla.edu/ro/public/soc/Results?SubjectAreaName=Computer+Science+("
        "COM+SCI)&t=23F&sBy=subject&subj=COM+SCI&catlg=&cls_no=&undefined=Go&btnIsInIndex=btn_inIndex")
@@ -65,7 +66,7 @@ if len(timeList) == len(lectureList) and len(timeList) == len(dayList):
 # Find all the separations between different class lecture times, and create list of their indexes
 lectureIndex = []
 for i in range(len(pairedLectureList)):
-    if 'Section' in pairedLectureList[i]:
+    if 'Section' in pairedLectureList[i] or 'Sect' in pairedLectureList[i]:
         lectureIndex.append(i)
 lectureIndex.append(len(pairedLectureList))
 
