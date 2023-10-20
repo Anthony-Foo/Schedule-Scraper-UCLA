@@ -1,10 +1,12 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from time import sleep
-options = webdriver.ChromeOptions()
-options.add_argument('--headless')
-driver = webdriver.Chrome(options=options)
 
+# options = webdriver.ChromeOptions()
+# options.add_argument('--headless')
+# driver = webdriver.Chrome(options=options)
+driver = webdriver.Chrome()
+classDict = {}
 url = ("https://sa.ucla.edu/ro/public/soc/Results?SubjectAreaName=Computer+Science+("
        "COM+SCI)&t=23F&sBy=subject&subj=COM+SCI&catlg=&cls_no=&undefined=Go&btnIsInIndex=btn_inIndex")
 driver.get(url)
@@ -13,8 +15,12 @@ driver.implicitly_wait(20)
 # Enter the shadow root and expand all classes on the page
 shadow_content = driver.find_element(By.XPATH, value="/html/body/main/div/div/div["
                                                      "2]/div/div/div/div/div/ucla-sa-soc-app").shadow_root
-shadow_content.find_element(By.ID, value="expandAll").click()
+# (shadow_content.find_element(By.CSS_SELECTOR, '#divPagination > div:nth-child(2) > ul > li:nth-child(2) > button')
+# .click())
+sleep(1)
+shadow_content.find_element(By.ID, "expandAll").click()
 driver.implicitly_wait(20)
+sleep(10)
 
 # find all the html elements under relevant class names and assign it to list
 time_text = shadow_content.find_elements(By.CLASS_NAME, "timeColumn")
@@ -39,7 +45,7 @@ for i in class_text:
 # Remove excess data from classList, leaving only the class titles
 classInd = 0
 while classInd < len(classList):
-    if "-" not in classList[classInd]:
+    if " - " not in classList[classInd] or "Online - Asynchronous" in classList[classInd]:
         del classList[classInd]
     else:
         classInd += 1
@@ -59,12 +65,11 @@ if len(timeList) == len(lectureList) and len(timeList) == len(dayList):
 # Find all the separations between different class lecture times, and create list of their indexes
 lectureIndex = []
 for i in range(len(pairedLectureList)):
-    if pairedLectureList[i] == 'Section ; Day(s) ; Time in Pacific Time':
+    if 'Section' in pairedLectureList[i]:
         lectureIndex.append(i)
 lectureIndex.append(len(pairedLectureList))
 
 # Assign lectures to their respective classes, while also moving each lecture and its discussions into nested lists
-classDict = {}
 for index, element in enumerate(classList):
     tempLecList = []
     discussInd = []
@@ -72,7 +77,7 @@ for index, element in enumerate(classList):
     for i in range(lectureIndex[index] + 1, lectureIndex[index + 1]):
         tempLecList.append(pairedLectureList[i])
     for location, entry in enumerate(tempLecList):
-        if "Lec" in entry or "Sem" in entry or "Lab" in entry:
+        if "Lec" in entry or "Sem" in entry or "Lab" in entry or "Tut" in entry:
             discussInd.append(location)
     discussInd.append(len(tempLecList))
     for i in range(len(discussInd) - 1):
